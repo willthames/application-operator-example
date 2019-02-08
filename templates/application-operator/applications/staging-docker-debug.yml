@@ -1,0 +1,9 @@
+apiVersion: skedulo.com/v1alpha1
+kind: SkeduloApplication
+metadata:
+  name: staging-docker-debug
+  namespace: staging
+spec:
+  image_tag: blue
+  env: staging
+  application: docker-debug

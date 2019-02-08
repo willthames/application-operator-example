@@ -1,0 +1,7 @@
+boto
+boto3
+botocore
+kubernetes-validate >= 1.12.1
+kubernetes >= 8.0.0
+git+https://github.com/willthames/openshift-restclient-python@apply
+ansible >= 2.7.0

@@ -1,0 +1,17 @@
+kube_resource_name: application-operator
+kube_resource_namespace: management
+kube_resource_secrets:
+  ssh: "{{ lookup('template', kube_resource_template_dir + 'ssh-secrets.yml') | from_yaml }}"
+  vault: "{{ lookup('template', kube_resource_template_dir + 'vault-secrets.yml') | from_yaml }}"
+kube_resource_configmaps:
+  ansible: "{{ lookup('template', kube_resource_template_dir + 'ansible-configmap.yml') | from_yaml }}"
+
+kube_resource_manifest_files: >
+  {{ query('fileglob', kube_resource_template_dir + '*manifest.yml') }} +
+  {{ query('fileglob', kube_resource_template_dir + '/applications/*.yml') }}
+
+# FIXME: needed until this becomes default once all apps are ported
+kube_resource_secrets_files: []
+
+application_operator_repo: "git@github.com:willthames/ansible-operator-test.git"
+application_operator_sync_interval: 60

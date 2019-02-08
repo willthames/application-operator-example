@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ kube_resource_name }}
+  namespace: {{ kube_resource_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ kube_resource_name }}
+  template:
+    metadata:
+      labels:
+        name: {{ kube_resource_name }}
+    spec:
+      serviceAccountName: {{ kube_resource_name }}
+      containers:
+        - name: {{ kube_resource_name }}
+          image: quay.io/operator-framework/ansible-operator:master
+          securityContext:
+            runAsUser: 65534
+            fsGroups:
+              - 65534
+          ports:
+          - containerPort: 60000
+            name: metrics
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: OPERATOR_NAME
+              value: "{{ kube_resource_name }}"
+            - name: ANSIBLE_VAULT_PASSWORD_FILE
+              value: /ansible/vault
+            - name: ANSIBLE_LOCAL_TEMP
+              value: /tmp/ansible
+          volumeMounts:
+            - name: ansible-repo
+              mountPath: /opt
+              readOnly: true
+            - name: ansible-cfg
+              mountPath: /etc/ansible
+            - name: vault-password
+              mountPath: /ansible
+              readOnly: true
+        - name: git-sync
+          image: thockin/git-sync:thtest
+          securityContext:
+            runAsUser: 65534
+            fsGroups:
+              - 65534
+          command:
+            - /git-sync
+            - --repo={{ application_operator_repo }}
+            - --branch={{ application_operator_branch }}
+            - --wait={{ application_operator_sync_interval }}
+            - --dest=ansible
+            - --ssh
+            - --root=/opt
+          volumeMounts:
+            - name: ansible-repo
+              mountPath: /opt
+            - name: git-ssh-key
+              mountPath: /etc/git-secret
+      volumes:
+        - name: vault-password
+          secret:
+            secretName: {{ kube_resource_secrets.vault | k8s_config_resource_name }}
+        - name: ansible-repo
+          emptyDir: {}
+        - name: git-ssh-key
+          secret:
+            secretName: {{ kube_resource_secrets.ssh | k8s_config_resource_name }}
+            defaultMode: 0440
+        - name: ansible-cfg
+          configMap:
+            name: {{ kube_resource_configmaps.ansible | k8s_config_resource_name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ kube_resource_name }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - endpoints
+  - persistentvolumeclaims
+  - events
+  - configmaps
+  - secrets
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - get
+  - create
+- apiGroups:
+  - skedulo.com
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ kube_resource_name }}
+subjects:
+- kind: ServiceAccount
+  name: {{ kube_resource_name }}
+  namespace: {{ kube_resource_namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ kube_resource_name }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ kube_resource_name }}
+  namespace: {{ kube_resource_namespace }}
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: skeduloapplications.skedulo.com
+  namespace: {{ kube_resource_namespace }}
+spec:
+  group: skedulo.com
+  names:
+    kind: SkeduloApplication
+    listKind: SkeduloApplicationList
+    plural: skeduloapplications
+    singular: skeduloapplication
+  scope: Namespaced
+  version: v1alpha1
+  subresources:
+    status: {}

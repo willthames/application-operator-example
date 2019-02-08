@@ -1,0 +1,4 @@
+- hosts: "{{ application }}-{{ env }}-runner"
+
+  roles:
+    - kube-resource
