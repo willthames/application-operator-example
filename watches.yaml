@@ -1,0 +1,5 @@
+---
+- version: v1alpha1
+  group: skedulo.com
+  kind: SkeduloApplication
+  playbook: /opt/ansible/deploy.yml
