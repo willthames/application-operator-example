@@ -1,4 +1,4 @@
-application_operator_branch: application_operator
+application_operator_branch: master
 application_operator_vault_password: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   32323865333561376164373733353437303632356431643665393537353066376561623761663437

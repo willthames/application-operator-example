@@ -1,1 +1,3 @@
-roles/kube-resource
+roles/kube-resource/.git
+roles/kube-resource/molecule
+

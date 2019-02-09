@@ -31,13 +31,13 @@ spec:
       labels:
         name: {{ kube_resource_name }}
     spec:
+      securityContext:
+        runAsUser: 65534
+        fsGroup: 65534
       serviceAccountName: {{ kube_resource_name }}
       containers:
         - name: {{ kube_resource_name }}
           image: quay.io/operator-framework/ansible-operator:master
-          securityContext:
-            runAsUser: 65534
-            fsGroup: 65534
           ports:
           - containerPort: 60000
             name: metrics
@@ -64,10 +64,6 @@ spec:
               readOnly: true
         - name: git-sync
           image: thockin/git-sync:thtest
-          securityContext:
-            runAsUser: 65534
-            fsGroups:
-              - 65534
           command:
             - /git-sync
             - --repo={{ application_operator_repo }}
