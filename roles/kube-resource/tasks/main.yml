@@ -21,7 +21,7 @@
   k8s:
     definition: "{{ item.value }}"
     append_hash: true
-    validate: "{{ kube_resource_validate_options }}"
+    validate: "{{ kube_resource_validate_options | default(omit) }}"
     wait: "{{ kube_resource_wait }}"
     wait_timeout: "{{ kube_resource_wait_timeout }}"
   loop: "{{ kube_resource_configmaps | dict2items }}"
@@ -30,7 +30,7 @@
   k8s:
     definition: "{{ item.value }}"
     append_hash: true
-    validate: "{{ kube_resource_validate_options }}"
+    validate: "{{ kube_resource_validate_options | default(omit) }}"
     wait: "{{ kube_resource_wait }}"
     wait_timeout: "{{ kube_resource_wait_timeout }}"
   loop: "{{ kube_resource_secrets | dict2items }}"
@@ -41,7 +41,7 @@
 - name: create secrets from files
   k8s:
     definition: "{{ item }}"
-    validate: "{{ kube_resource_validate_options }}"
+    validate: "{{ kube_resource_validate_options | default(omit) }}"
     wait: "{{ kube_resource_wait }}"
     wait_timeout: "{{ kube_resource_wait_timeout }}"
   loop: "{{ kube_resource_secrets_from_files }}"
@@ -60,7 +60,7 @@
 - name: apply all resource definitions in order
   k8s:
     definition: "{{ item }}"
-    validate: "{{ kube_resource_validate_options }}"
+    validate: "{{ kube_resource_validate_options | default(omit) }}"
     wait: "{{ kube_resource_wait }}"
     wait_timeout: "{{ kube_resource_wait_timeout }}"
   loop: "{{ kube_resource_manifests_from_files }}"
