@@ -3,3 +3,4 @@
   group: skedulo.com
   kind: SkeduloApplication
   playbook: /opt/ansible/deploy.yml
+  manageStatus: false

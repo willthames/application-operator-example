@@ -37,7 +37,7 @@ spec:
       serviceAccountName: {{ kube_resource_name }}
       containers:
         - name: {{ kube_resource_name }}
-          image: quay.io/operator-framework/ansible-operator:master
+          image: quay.io/operator-framework/ansible-operator:v0.5.0
           ports:
           - containerPort: 60000
             name: metrics
@@ -53,6 +53,10 @@ spec:
               value: /tmp/ansible
             - name: ANSIBLE_INVENTORY
               value: /opt/ansible/inventory
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - name: ansible-repo
               mountPath: /opt
