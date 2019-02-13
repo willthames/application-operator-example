@@ -62,6 +62,7 @@ metadata:
   labels:
     {{ kube_resource_labels | to_nice_yaml(indent=2) | indent(4) }}
 spec:
+  type: NodePort
   ports:
   - port: 8080 # the port that this service should serve on
     # the container on each pod to connect to, can be a name
@@ -73,18 +74,3 @@ spec:
   # traffic to.
   selector:
     {{ kube_resource_labels | to_nice_yaml(indent=2) | indent(4) }}
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: {{ kube_resource_name }}
-  namespace: {{ kube_resource_namespace }}
-spec:
-  rules:
-  - host: {{ kube_resource_fqdn }}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: {{ kube_resource_name }}
-          servicePort: 8080
