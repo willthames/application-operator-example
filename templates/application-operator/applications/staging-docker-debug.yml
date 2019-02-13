@@ -4,6 +4,6 @@ metadata:
   name: staging-docker-debug
   namespace: staging
 spec:
-  image_tag: blue
+  image_tag: green
   env: staging
   application: docker-debug
