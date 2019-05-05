@@ -8,6 +8,5 @@
   set_fact:
     common_version: "{{ common_version_result.stdout }}"
 
-- include_tasks:
-    - name: repo.yml
+- include_tasks: repo.yml
   loop: "{{ lookup('fileglob', '/applications/*') }}"
