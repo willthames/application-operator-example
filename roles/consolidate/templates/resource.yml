@@ -1,0 +1,11 @@
+apiVersion: thames.id.au/v1alpha1
+kind: ApplicationDeployment
+metadata:
+  name: {{ application }}
+  namespace: {{ env }}
+spec:
+  env: {{ env }}
+  application: {{ application }}
+  image_tag: {{ image_tag }}
+  repo_version: {{ repo_version }}
+  common_version: {{ common_version }}

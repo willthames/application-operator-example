@@ -1,0 +1,22 @@
+- name: set directory fact
+  set_fact:
+    directory: "{{ item }}/{{ item | basename }}"
+    application: "{{ item | basename }}"
+
+- name: get repo version
+  command: git describe --long
+  args:
+    chdir: "{{ directory }}"
+  register: repo_version_result
+
+- name: set repo version fact
+  set_fact:
+    repo_version: "{{ repo_version_result.stdout }}"
+
+- name: find version of image
+  set_fact:
+    image_tag: "{{ lookup('file', directory + 'inventory/group_vars/{{ application }}/version.yml') | from_yaml | json_query('image_tag') }}"
+
+- name: set operator resource
+  k8s:
+    resource: "{{ lookup('template', 'resource.yml') }}"

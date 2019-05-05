@@ -137,7 +137,7 @@ class KubernetesRawModule(KubernetesAnsibleModule):
             resource = self.find_resource(search_kind, api_version, fail=True)
             definition = self.set_defaults(resource, definition)
             self.warnings = []
-            if self.params['validate']:
+            if self.params['validate'] is not None:
                 self.warnings = self.validate(definition)
             result = self.perform_action(resource, definition)
             result['warnings'] = self.warnings

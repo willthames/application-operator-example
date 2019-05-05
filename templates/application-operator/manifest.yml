@@ -2,15 +2,32 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: skeduloapplications.skedulo.com
+  name: applicationdeployments.thames.id.au
   namespace: {{ kube_resource_namespace }}
 spec:
-  group: skedulo.com
+  group: thames.id.au
   names:
-    kind: SkeduloApplication
-    listKind: SkeduloApplicationList
-    plural: skeduloapplications
-    singular: skeduloapplication
+    kind: ApplicationDeployment
+    listKind: ApplicationDeploymentList
+    plural: applicationdeployments
+    singular: applicationdeployment
+  scope: Namespaced
+  version: v1alpha1
+  subresources:
+    status: {}
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: consolidations.thames.id.au
+  namespace: {{ kube_resource_namespace }}
+spec:
+  group: thames.id.au
+  names:
+    kind: Consolidation
+    listKind: ConsolidationList
+    plural: consolidations
+    singular: consolidation
   scope: Namespaced
   version: v1alpha1
   subresources:
@@ -37,14 +54,14 @@ spec:
       serviceAccountName: {{ kube_resource_name }}
       containers:
         - name: {{ kube_resource_name }}
-          image: quay.io/operator-framework/ansible-operator:v0.5.0
+          image: quay.io/operator-framework/ansible-operator:{{ image_tag }}
           ports:
           - containerPort: 60000
             name: metrics
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
-              value: ""
+              value: "{{ kube_resource_namespace }}"
             - name: OPERATOR_NAME
               value: "{{ kube_resource_name }}"
             - name: ANSIBLE_VAULT_PASSWORD_FILE
@@ -66,8 +83,12 @@ spec:
             - name: vault-password
               mountPath: /ansible
               readOnly: true
-        - name: git-sync
-          image: thockin/git-sync:thtest
+{% for application in application_operator_applications %}
+            - name: ansible-repo-{{ application }}
+              mountPath: /applications/{{ application }}
+{% endfor %}
+        - name: git-sync-common
+          image: k8s.gcr.io/git-sync:v3.1.1
           command:
             - /git-sync
             - --repo={{ application_operator_repo }}
@@ -81,6 +102,23 @@ spec:
               mountPath: /opt
             - name: git-ssh-key
               mountPath: /etc/git-secret
+{% for application in application_operator_applications %}
+        - name: git-sync-{{ application }}
+          image: k8s.gcr.io/git-sync:v3.1.1
+          command:
+            - /git-sync
+            - --repo=git@github.com:willthames/ansible-demo-{{ application }}
+            - --branch={{ env }}
+            - --wait={{ application_operator_sync_interval }}
+            - --dest={{ application }}
+            - --ssh
+            - --root=/applications/{{ application }}
+          volumeMounts:
+            - name: ansible-repo-{{ application }}
+              mountPath: /applications/{{ application }}
+            - name: git-ssh-key
+              mountPath: /etc/git-secret
+{% endfor %}
       volumes:
         - name: vault-password
           secret:
@@ -94,6 +132,10 @@ spec:
         - name: ansible-cfg
           configMap:
             name: {{ kube_resource_configmaps.ansible | k8s_config_resource_name }}
+{% for application in application_operator_applications %}
+        - name: ansible-repo-{{ application }}
+          emptyDir: {}
+{% endfor %}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -159,3 +201,11 @@ kind: ServiceAccount
 metadata:
   name: {{ kube_resource_name }}
   namespace: {{ kube_resource_namespace }}
+---
+apiVersion: thames.id.au/v1alpha1
+kind: Consolidation
+metadata:
+  name: {{ kube_resource_name }}
+  namespace: {{ kube_resource_namespace }}
+spec:
+  env: {{ kube_resource_namespace }}

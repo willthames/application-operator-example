@@ -1,6 +1,11 @@
 ---
 - version: v1alpha1
-  group: skedulo.com
-  kind: SkeduloApplication
+  group: thames.id.au
+  kind: ApplicationDeployment
   playbook: /opt/ansible/deploy.yml
+  manageStatus: false
+- version: v1alpha1
+  group: thames.id.au
+  kind: Consolidation
+  role: /opt/ansible/roles/consolidate
   manageStatus: false

@@ -20,5 +20,4 @@ layers:
         - test
         - prod
     application:
-        - docker-debug
         - application-operator
