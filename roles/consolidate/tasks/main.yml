@@ -1,0 +1,13 @@
+- name: find common version
+  command: git describe --long
+  args:
+    chdir: /opt/ansible
+  register: common_version_result
+
+- name: set common version fact
+  set_fact:
+    common_version: "{{ common_version_result.stdout }}"
+
+- include_tasks:
+    - name: repo.yml
+  loop: "{{ lookup('fileglob', '/applications/*') }}"

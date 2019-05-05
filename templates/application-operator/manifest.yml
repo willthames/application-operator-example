@@ -53,7 +53,7 @@ spec:
         fsGroup: 65534
       serviceAccountName: {{ kube_resource_name }}
       containers:
-        - name: {{ kube_resource_name }}
+        - name: {{ application }}
           image: quay.io/operator-framework/ansible-operator:{{ image_tag }}
           ports:
           - containerPort: 60000
