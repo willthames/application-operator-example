@@ -20,4 +20,4 @@
 
 - name: set operator resource
   k8s:
-    resource: "{{ lookup('template', 'resource.yml') }}"
+    definition: "{{ lookup('template', 'resource.yml') }}"
