@@ -8,6 +8,7 @@
   args:
     chdir: "{{ directory }}"
   register: repo_version_result
+  changed_when: false
 
 - name: set repo version fact
   set_fact:

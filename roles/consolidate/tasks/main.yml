@@ -3,10 +3,14 @@
   args:
     chdir: /opt/ansible
   register: common_version_result
+  changed_when: false
 
 - name: set common version fact
   set_fact:
     common_version: "{{ common_version_result.stdout }}"
 
-- include_tasks: repo.yml
+- debug:
+    msg: "{{ lookup('fileglob', '/applications/*') }}"
+
+- include_tasks: application.yml
   loop: "{{ lookup('fileglob', '/applications/*') }}"
