@@ -16,7 +16,7 @@
 
 - name: find version of image
   set_fact:
-    image_tag: "{{ lookup('file', directory + 'inventory/group_vars/{{ application }}/version.yml') | from_yaml | json_query('image_tag') }}"
+    image_tag: "{{ lookup('file', directory + '/inventory/group_vars/{{ application }}/version.yml') | from_yaml | json_query('image_tag') }}"
 
 - name: set operator resource
   k8s:
