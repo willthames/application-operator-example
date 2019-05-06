@@ -9,8 +9,6 @@
   set_fact:
     common_version: "{{ common_version_result.stdout }}"
 
-- debug:
-    msg: "{{ lookup('fileglob', '/applications/*') }}"
-
 - include_tasks: application.yml
-  loop: "{{ lookup('fileglob', '/applications/*') }}"
+  # would rather use fileglob here but that doesn't work on directories
+  loop: "{{ lookup('pipe', 'ls -d /applications/*').splitlines() }}"
