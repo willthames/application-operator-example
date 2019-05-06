@@ -11,7 +11,7 @@ data:
     callback_whitelist = profile_tasks,timer
     module_utils = /opt/ansible/module_utils
     library = /opt/ansible/library
-    inventory = /opt/ansible/inventory
+    inventory = /opt/ansible/inventory,{{ application_operator_applications | map('regex_replace', '^(.*)$', '/applications/\\1/\\1/inventory') | join(',') }}
     filter_plugins = /opt/ansible/plugins/filter
     remote_tmp = /tmp/ansible
     roles_path = /opt/ansible/roles

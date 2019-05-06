@@ -54,7 +54,7 @@ spec:
       serviceAccountName: {{ kube_resource_name }}
       containers:
         - name: {{ application }}
-          image: quay.io/operator-framework/ansible-operator:{{ image_tag }}
+          image: willthames/ansible-operator:{{ image_tag }}
           ports:
           - containerPort: 60000
             name: metrics
